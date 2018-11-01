@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="en">
+      <head>
+        <title>WebGL camera imitation</title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="styles/main.css" type="text/css">
+        <script src="vendor/jquery/jquery.min.js"></script>
+        <script src="vendor/webgl-utils.js"></script>
+
+        <link rel="stylesheet" type="text/css" href="vendor/semantic/semantic.min.css">
+        <script src="vendor/semantic/semantic.min.js"></script>
+      </head>
+
+      <body style='margin:0; padding:0;'>
+        <div class="ui three column grid">
+      		<div class="row">
+        		<div class="column"><h1>Camera transform</h1></div>
+        		<div class="column"><h1>Perspective</h1></div>
+        		<div class="column"><h1>Looking at the certain point</h1></div>
+      		</div>
+      		<div class="row">
+      			<div class="column">
+      				<form class="ui form" onsubmit="return false">
+    			  		<div class="field">
+    			    		<label>Translation x</label>
+    			      		<div class="field">
+    			        		<input type="number" style="width:300px" name="xcam" id="xcam" min="-10000" max="10000" onchange="update_xcam(this.value);">
+    			      		</div>
+    			  		</div>
+    			  		<div class="field">
+    			    		<label>Translation y</label>
+    			      		<div class="field">
+    			        		<input type="number" style="width:300px" name="ycam" id="ycam" min="-10000" max="10000" onchange="update_ycam(this.value);">
+    			      		</div>
+    			  		</div>
+    			  		<div class="field">
+    			    		<label>Translation z</label>
+    			      		<div class="field">
+    			        		<input type="number" style="width:300px" name="zcam" id="zcam" min="-10000" max="10000" onchange="update_zcam(this.value);">
+    			      		</div>
+    			  		</div>
+    			  		<div class="two fields">
+    			  			<div class="field">
+    				    		<label>Rotation around x axis</label>
+    				      		<div class="field">
+    				        		<input type="number" style="width:200px" name="xcamangle" id="xcamangle" min="0" max="360" onchange="update_xcamangle(this.value);">
+    				      		</div>
+    				  		</div>
+    				  		<div class="field">
+    				    		<label>Speed</label>
+    				      		<div class="field">
+    				        		<input type="number" style="width:200px" name="xspeed" id="xspeed" min="0" max="360" onchange="update_xspeed(this.value);">
+    				      		</div>
+    				  		</div>
+    			  		</div>
+    			  		<div class="two fields">
+    				  		<div class="field">
+    				    		<label>Rotation around y axis</label>
+    				      		<div class="field">
+    				        		<input type="number" style="width:200px" name="ycamangle" id="ycamangle" min="0" max="360" onchange="update_ycamangle(this.value);">
+    				      		</div>
+    				  		</div>
+    				  		<div class="field">
+    				    		<label>Speed</label>
+    				      		<div class="field">
+    				        		<input type="number" style="width:200px" name="yspeed" id="yspeed" min="0" max="360" onchange="update_yspeed(this.value);">
+    				      		</div>
+    				  		</div>
+    			  		</div>
+    			  		<div class="two fields">
+    				  		<div class="field">
+    				    		<label>Rotation around z axis</label>
+    				      		<div class="field">
+    				        		<input type="number" style="width:200px" name="zcamangle" id="zcamangle" min="0" max="360" onchange="update_zcamangle(this.value);">
+    				      		</div>
+    				  		</div>
+    				  		<div class="field">
+    					    	<label>Speed</label>
+    					      	<div class="field">
+    					        	<input type="number" style="width:200px" name="zspeed" id="zspeed" min="0" max="360" onchange="update_zspeed(this.value);">
+    					      	</div>
+    					  	</div>
+    					</div>
+    			    </form>
+
+      			</div>
+      			<div class="column">
+      				<form class="ui form" onsubmit="return false">
+    			  		
+    					<div class="field">
+    			    		<label>Near z value</label>
+    			      		<div class="field">
+    			        		<input type="number" style="width:300px" name="near" id="near" min="0" max="10000" onchange="update_near(this.value);">
+    			      		</div>
+    			  		</div>
+    			  		<div class="field">
+    			    		<label>Far z value</label>
+    			      		<div class="field">
+    			        		<input type="number" style="width:300px" name="far" id="far" min="0" max="10000" onchange="update_far(this.value);">
+    			      		</div>
+    			  		</div>
+    			  		<div class="field">
+    			    		<label>Field of view</label>
+    			      		<div class="field">
+    			        		<input type="number" style="width:300px" name="fov" id="fov" min="0" max="360" onchange="update_fov(this.value);">
+    			      		</div>
+    			  		</div>
+    			  		<div class="field">
+    			  			<div class="ui toggle checkbox">
+    			  				<input type="checkbox" name="enable_perspective" id="enable_perspective" checked>
+    							<label>Enable perspective</label>
+    			  			</div>
+    					</div>
+    			    </form>
+    			</div>
+      			<div class="column">
+      				<form class="ui form" onsubmit="return false">
+    	  				<div class="field">
+    				    	<label>Target x</label>
+    				      	<div class="field">
+    				        	<input type="number" style="width:300px" name="xtarget" id="xtarget" min="-10000" max="10000" onchange="update_xtarget(this.value);">
+    				      	</div>
+    				  	</div>
+    				  	<div class="field">
+    				    	<label>Target y</label>
+    				      	<div class="field">
+    				        	<input type="number" style="width:300px" name="ytarget" id="ytarget" min="-10000" max="10000" onchange="update_ytarget(this.value);">
+    				      	</div>
+    				  	</div>
+    				  	<div class="field">
+    				    	<label>Target z</label>
+    				      	<div class="field">
+    				        	<input type="number" style="width:300px" name="ztarget" id="ztarget" min="-10000" max="10000" onchange="update_ztarget(this.value);">
+    				      	</div>
+    				  	</div>
+    				  	<div class="field">
+    			  			<div class="ui toggle checkbox">
+    			  				<input type="checkbox" name="enable_target" id="enable_target">
+    							<label>Enable looking at target</label>
+    			  			</div>
+    					</div>
+                        <div class="field" style="margin-top:100px;">
+                            <label>Animation speed</label>
+                            <div class="field">
+                                <input type="number" style="width:300px" name="animation_speed" id="animation_speed" min="1" max="1000" onchange="update_animation_speed(this.value);">
+                            </div>
+                        </div>
+    			  	</form>
+      			</div>
+      		</div>
+        </div>
+          
+        <canvas id="cv" width="640" height="480">
+         
+        </canvas>
+
+        <h2 style="text-align:center; font-weight:normal;">Coordinates of centres of cubes are 
+            <span style="color:#29A260; font-weight:bold;">(-400, 0, -600)</span>, 
+            <span style="color:#2184D0; font-weight:bold;">(0, 0, -600)</span>, 
+            <span style="color:#9D2D2D; font-weight:bold;">(400, 0, -600)</span>, side of a cube is equal to 200
+        </h2>
+
+      <script src="scripts/figures/cube.js"></script>
+      <script src="scripts/figures/sphere.js"></script>
+      <script src="scripts/figures/f_letter.js"></script>
+      <script src="scripts/figures/thor.js"></script>
+
+      <script src="scripts/vector.js"></script>
+      <script src="scripts/m4.js"></script>
+      <script src="scripts/program_constructors.js"></script>
+      <script src="scripts/geometry_setters.js"></script>
+      <script src="scripts/color_setters.js"></script>
+      <script src="scripts/normal_setters.js"></script>
+      <script src="scripts/light_setters.js"></script>
+      <script src="scripts/view_position_setters.js"></script>
+      <script src="scripts/canvas_configurators.js"></script>
+      <script src="scripts/angle_converters.js"></script>
+      <script src="scripts/camera_settings.js"></script>
+      <script src="scripts/main.js"></script>
+
+      <script>
+        $(document).ready(function(){
+        	main(window, document);
+        });
+
+        function should_enable_perspective(){
+        	return $('#enable_perspective').is(':checked');
+        }
+
+        function should_enable_target(){
+        	return $('#enable_target').is(':checked');
+        }
+
+        function set_element_value(element_id, value){
+        	$(element_id).val(Math.round(value * 100) / 100);
+        }
+
+        function get_element_value(element_id, value){
+        	return $(element_id).value;
+        }
+
+        //
+
+        function set_xcam(value){
+        	set_element_value('#xcam', value);
+        }
+
+        function update_xcam(value){
+        	camera_translation_x = parseFloat(value);
+        }
+
+        function set_xcamangle(value){
+        	set_element_value('#xcamangle', value);
+        }
+
+        function update_xcamangle(value){
+        	camera_angle_x_radians = degToRad(parseFloat(value));
+        }
+
+        function set_xspeed(value){
+        	set_element_value('#xspeed', value);
+        }
+
+        function update_xspeed(value){
+        	camera_angle_x_radians_speed = parseFloat(value);
+        }
+
+        //
+
+        function set_ycam(value){
+        	set_element_value('#ycam', value);
+        }
+
+        function update_ycam(value){
+        	camera_translation_y = parseFloat(value);
+        }
+
+        function set_ycamangle(value){
+        	set_element_value('#ycamangle', value);
+        }
+
+        function update_ycamangle(value){
+        	camera_angle_y_radians = degToRad(parseFloat(value));
+        }
+
+        function set_yspeed(value){
+        	set_element_value('#yspeed', value);
+        }
+
+        function update_yspeed(value){
+        	camera_angle_y_radians_speed = parseFloat(value);
+        }
+
+        //
+
+        function set_zcam(value){
+        	set_element_value('#zcam', value);
+        }
+
+        function update_zcam(value){
+        	camera_translation_z = parseFloat(value);
+        }
+
+        function set_zcamangle(value){
+        	set_element_value('#zcamangle', value);
+        }
+
+        function update_zcamangle(value){
+        	camera_angle_z_radians = degToRad(parseFloat(value));
+        }
+
+        function set_zspeed(value){
+        	set_element_value('#zspeed', value);
+        }
+
+        function update_zspeed(value){
+        	camera_angle_z_radians_speed = parseFloat(value);
+        }
+
+        //
+
+        function set_near(near){
+        	set_element_value('#near', near);
+        }
+
+        function update_near(near){
+        	zNear = parseFloat(near);
+        }
+
+        function set_far(far){
+        	set_element_value('#far', far);
+        }
+
+        function update_far(far){
+        	zFar = parseFloat(far);
+        }
+
+        function set_fov(fov){
+        	set_element_value('#fov', fov);
+        }
+
+        function update_fov(fov){
+        	fieldOfViewRadians = degToRad(fov);
+        }
+
+        //
+
+        function set_xtarget(value){
+        	set_element_value('#xtarget', value);
+        }
+
+        function update_xtarget(value){
+        	fPosition[0] = parseFloat(value);
+        }
+
+        function set_ytarget(value){
+        	set_element_value('#ytarget', value);
+        }
+
+        function update_ytarget(value){
+        	fPosition[1] = parseFloat(value);
+        }
+
+        function set_ztarget(value){
+        	set_element_value('#ztarget', value);
+        }
+
+        function update_ztarget(value){
+        	fPosition[2] = parseFloat(value);
+        }
+
+        //
+
+
+        function set_animation_speed(value){
+            set_element_value('#animation_speed', value);
+        }
+
+        function update_animation_speed(value){
+            animation_speed = parseFloat(value);
+            clearInterval(animation_interval);
+            animation_interval = setInterval(update_rotation, 1000 / animation_speed);
+        }
+      </script>
+
+</html>
