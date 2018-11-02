@@ -3,5 +3,5 @@ Report for observing basic concepts of working with camera in WebGL. This includ
 * introduction with description of the main logical types of coordinates in webgl
 * prooves for matrix which is being used for creation of perspective effect
 * prooves for matrix designed for keeping an eye on some point in space
-* demonstration of described techniques
+* [demonstration](http://zeionara.000webhostapp.com/webgl_camera_imitation/) of described techniques
 ![](readme/rotating_cubes.gif)
